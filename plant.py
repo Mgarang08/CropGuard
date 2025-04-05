@@ -9,49 +9,31 @@ import base64
 
 app = Flask(__name__)
 
-# Model Loading (Choose ONE method)
 
-# **Option 1: Load from TensorFlow Hub (Internet required)**
 model_url = "https://www.kaggle.com/models/rishitdagli/plant-disease/TensorFlow2/plant-disease/1"
 model = hub.load(model_url)
-#infer = model.signatures["serving_default"] # This will not exist if loading model through tf hub.
 
-# **Option 2: Load Locally (No internet required after download)**
-# model_path = "/home/mgarang/plant_disease_model/plant-disease/1"  # Replace with your actual path
-# model = tf.saved_model.load(model_path)
-# infer = model.signatures["serving_default"]
-
-# Label Loading
-with open('/home/mgarang/Downloads/class_indices.json', 'r') as f:  # Replace with your actual path
+with open('/home/mgarang/Downloads/class_indices.json', 'r') as f: 
     class_indices = json.load(f)
 labels = [class_indices[str(i)] for i in range(len(class_indices))]
 
-# Image Preprocessing
 def preprocess_image(image):
     img = Image.fromarray(image)
-    img = img.resize((224, 224), Image.Resampling.LANCZOS)  # Resize to 224x224
+    img = img.resize((224, 224), Image.Resampling.LANCZOS)
     img_array = np.array(img)
-    img_array = (img_array.astype(np.float32) / 255.0)  # Normalize to [0, 1]
-    img_array = np.expand_dims(img_array, axis=0)  # Add batch dimension
+    img_array = (img_array.astype(np.float32) / 255.0)  
+    img_array = np.expand_dims(img_array, axis=0) 
     return img_array
 
-# Prediction Function
 def predict_disease(image):
     processed_image = preprocess_image(image)
 
-    # Make prediction
-    # Option 1: for tf hub approach.
     logits = model(processed_image)
-
-    # Option 2: Use this if loading locally
-    # logits = infer(tf.constant(processed_image))['output_0']  # Extract logits tensor
-
     predicted_class = np.argmax(logits)
     confidence = np.max(tf.nn.softmax(logits))  # Apply softmax for confidence
     disease_label = labels[predicted_class]
     return disease_label, confidence
 
-# Treatment Data with Real Gardening Advice
 treatment_data = {
     "healthy": "Your plant looks healthy! Keep giving it the right amount of water and sunshine.",
     "Corn___Common_rust": [
@@ -93,7 +75,6 @@ treatment_data = {
         "Sometimes, just spraying the leaves with water in the morning can help wash off the white powder, but don't do it too much so the leaves don't stay wet all day.",
         "Cherry trees like to have air moving around their leaves, so a grown-up might need to trim some branches if it's too crowded."
     ],
-    # You can add even more treatments for other diseases here!
 }
 
 @app.route('/', methods=['GET', 'POST'])
