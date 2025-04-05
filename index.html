@@ -1,0 +1,28 @@
+<index.html>
+<html>
+<head>
+    <title>Plant Disease Detection</title>
+</head>
+<body>
+    <h1>Plant Disease Detection</h1>
+
+    <form method="POST" enctype="multipart/form-data">
+        <input type="file" name="image">
+        <button type="submit">Upload Image</button>
+    </form>
+
+    {% if uploaded_image %}
+        <h2>Uploaded Image:</h2>
+        <img src="{{ uploaded_image }}" alt="Uploaded Plant Image">
+    {% endif %}
+
+    {% if prediction %}
+        <h2>Prediction:</h2>
+        <p><b>Disease:</b> {{ prediction }}</p>
+        <p><b>Confidence:</b> {{ confidence }}</p>
+        <h2>Treatment:</h2>
+        <p>{{ treatment }}</p>
+    {% endif %}
+
+</body>
+</html>
